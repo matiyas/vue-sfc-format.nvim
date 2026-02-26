@@ -1,0 +1,82 @@
+--[[
+  Vue SFC Format CLI
+  Formats Vue SFC files from stdin to stdout.
+  Reads configuration from .vue-sfc-format.json in current directory.
+]]
+
+-- Add plugin lua path
+local script_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)") or ""
+package.path = script_dir .. "../lua/?.lua;" .. script_dir .. "../lua/?/init.lua;" .. package.path
+
+-- Mock vim global for standalone usage (when vim global doesn't exist)
+if not _G.vim or not _G.vim.fn then
+  _G.vim = _G.vim or {}
+  _G.vim.fn = {
+    getcwd = function()
+      return os.getenv("PWD") or "."
+    end,
+    filereadable = function(path)
+      local f = io.open(path, "r")
+      if f then
+        f:close()
+        return 1
+      end
+      return 0
+    end,
+  }
+  _G.vim.deepcopy = function(t)
+    if type(t) ~= "table" then return t end
+
+    local copy = {}
+    for k, v in pairs(t) do
+      copy[k] = _G.vim.deepcopy(v)
+    end
+    return copy
+  end
+  _G.vim.tbl_deep_extend = function(behavior, ...)
+    local result = {}
+    for _, tbl in ipairs({ ... }) do
+      if tbl then
+        for k, v in pairs(tbl) do
+          if type(v) == "table" and type(result[k]) == "table" then
+            result[k] = _G.vim.tbl_deep_extend(behavior, result[k], v)
+          else
+            result[k] = _G.vim.deepcopy(v)
+          end
+        end
+      end
+    end
+    return result
+  end
+  _G.vim.json = {
+    decode = function(str)
+      -- Simple JSON decoder
+      str = str:gsub('"([^"]+)"%s*:', '["%1"]=')
+      str = str:gsub("%[", "{")
+      str = str:gsub("%]", "}")
+      str = str:gsub(":null", "=nil")
+      str = str:gsub(":true", "=true")
+      str = str:gsub(":false", "=false")
+      local fn = loadstring("return " .. str)
+      if fn then return fn() end
+
+      return nil
+    end,
+  }
+end
+
+local formatter = require("vue-sfc-format.formatter")
+
+local function main()
+  local content = io.read("*a")
+
+  local formatted, err = formatter.format_vue(content)
+  if err then
+    io.stderr:write("Error: " .. err .. "\n")
+    os.exit(1)
+  end
+
+  io.write(formatted)
+end
+
+main()
