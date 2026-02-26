@@ -1,0 +1,153 @@
+*vue-sfc-format.txt*  Format Vue SFC files with configurable formatters
+
+==============================================================================
+CONTENTS                                            *vue-sfc-format-contents*
+
+    1. Introduction .......................... |vue-sfc-format-introduction|
+    2. Requirements .......................... |vue-sfc-format-requirements|
+    3. Installation .......................... |vue-sfc-format-installation|
+    4. Configuration ......................... |vue-sfc-format-configuration|
+    5. Usage ................................. |vue-sfc-format-usage|
+    6. API ................................... |vue-sfc-format-api|
+    7. Formatter.nvim Integration ............ |vue-sfc-format-formatter-nvim|
+
+==============================================================================
+INTRODUCTION                                    *vue-sfc-format-introduction*
+
+vue-sfc-format.nvim is a Neovim plugin that formats Vue Single File Components
+(SFC) by applying different formatters to each section:
+
+- `<template>`: Formatted with js-beautify (HTML formatter)
+- `<script>`: Formatted with prettier (babel parser)
+- `<style>`: Formatted with prettier (css/scss parser)
+
+The plugin correctly handles nested template tags (e.g., `<template v-if>`)
+by using depth-balanced tag matching.
+
+==============================================================================
+REQUIREMENTS                                    *vue-sfc-format-requirements*
+
+- Neovim >= 0.9.0
+- Node.js with npx (for running formatters)
+- js-beautify (npm install -g js-beautify)
+- prettier (npm install -g prettier)
+
+==============================================================================
+INSTALLATION                                    *vue-sfc-format-installation*
+
+Using lazy.nvim: >lua
+    {
+      "matiyas/vue-sfc-format.nvim",
+      ft = { "vue" },
+      opts = {},
+    }
+<
+
+Using packer.nvim: >lua
+    use({
+      "matiyas/vue-sfc-format.nvim",
+      ft = { "vue" },
+      config = function()
+        require("vue-sfc-format").setup()
+      end,
+    })
+<
+
+==============================================================================
+CONFIGURATION                                  *vue-sfc-format-configuration*
+
+The plugin reads formatter configuration from a JSON file. By default, it
+looks for `.vue-sfc-format.json` in the current working directory.
+
+Plugin options (passed to setup): >lua
+    require("vue-sfc-format").setup({
+      config_file = ".vue-sfc-format.json",  -- JSON config file name
+      indent = 2,                             -- Indentation for template content
+      temp_dir = "/tmp",                      -- Temp file directory
+    })
+<
+
+JSON configuration file format: >json
+    {
+      "formatters": {
+        "template": {
+          "cmd": "npx",
+          "args": ["js-beautify", "--type", "html", "--indent-size", "2"]
+        },
+        "script": {
+          "cmd": "npx",
+          "args": ["prettier", "--parser", "babel", "--semi", "false"]
+        },
+        "style": {
+          "cmd": "npx",
+          "args": ["prettier", "--parser", "css"]
+        },
+        "style_scss": {
+          "cmd": "npx",
+          "args": ["prettier", "--parser", "scss"]
+        }
+      }
+    }
+<
+
+The plugin automatically detects SCSS from the `lang="scss"` attribute in
+the `<style>` tag and uses the `style_scss` formatter instead of `style`.
+
+==============================================================================
+USAGE                                                  *vue-sfc-format-usage*
+
+Command: >
+    :VueSfcFormat
+<
+Formats the current buffer if it is a Vue file.
+
+Lua: >lua
+    require("vue-sfc-format").format()
+<
+
+==============================================================================
+API                                                      *vue-sfc-format-api*
+
+                                                    *vue-sfc-format.setup()*
+setup({opts})
+    Initialize the plugin with optional configuration.
+
+    Parameters: ~
+        {opts}  (table|nil) Configuration options
+
+                                                   *vue-sfc-format.format()*
+format({bufnr})
+    Format a buffer containing a Vue SFC.
+
+    Parameters: ~
+        {bufnr}  (number|nil) Buffer number, defaults to current buffer
+
+                                             *vue-sfc-format.format_stdin()*
+format_stdin()
+    Read Vue SFC from stdin, format it, and write to stdout.
+    Used for integration with external tools.
+
+                                      *vue-sfc-format.formatter_nvim_config()*
+formatter_nvim_config()
+    Returns a configuration table for use with formatter.nvim.
+
+    Returns: ~
+        (table) Configuration with exe, args, and stdin fields
+
+==============================================================================
+FORMATTER.NVIM INTEGRATION                     *vue-sfc-format-formatter-nvim*
+
+To use with formatter.nvim: >lua
+    require("formatter").setup({
+      filetype = {
+        vue = {
+          function()
+            return require("vue-sfc-format").formatter_nvim_config()
+          end,
+        },
+      },
+    })
+<
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:

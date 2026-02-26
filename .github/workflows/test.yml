@@ -1,0 +1,31 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        neovim_version: ["v0.10.0", "stable", "nightly"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: ${{ matrix.neovim_version }}
+      - uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.1"
+      - uses: leafo/gh-actions-luarocks@v4
+      - name: Install test dependencies
+        run: |
+          luarocks install busted
+          luarocks install luassert
+          git clone --depth 1 https://github.com/notomo/vusted.git /tmp/vusted
+      - name: Run tests
+        run: /tmp/vusted/bin/vusted tests/
