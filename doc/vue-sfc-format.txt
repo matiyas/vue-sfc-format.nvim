@@ -21,8 +21,6 @@ vue-sfc-format.nvim is a Neovim plugin that formats Vue Single File Components
 - `<script>`: Formatted with prettier (babel parser)
 - `<style>`: Formatted with prettier (css/scss parser)
 
-The plugin correctly handles nested template tags (e.g., `<template v-if>`)
-by using depth-balanced tag matching.
 
 ==============================================================================
 REQUIREMENTS                                    *vue-sfc-format-requirements*

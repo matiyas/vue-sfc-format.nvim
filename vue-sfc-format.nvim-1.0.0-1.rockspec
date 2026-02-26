@@ -7,8 +7,7 @@ description = {
   detailed = [[
     A Neovim plugin that formats Vue Single File Components by applying
     different formatters to each section (template, script, style).
-    Supports configurable formatters via JSON config file and correctly
-    handles nested template tags.
+    Supports configurable formatters via JSON config file.
   ]],
   license = "MIT",
   homepage = "https://github.com/matiyas/vue-sfc-format.nvim",
