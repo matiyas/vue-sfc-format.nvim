@@ -61,14 +61,30 @@ describe("formatter", function()
     end)
 
     it("passes arguments to command", function()
-      local test_formatter = {
-        cmd = "echo",
-        args = { "-n", "test:" },
-      }
-      -- This will echo "test:" and ignore the file, then cat reads the file
       local result = formatter.format_with_temp_file("content", { cmd = "cat", args = {} }, "test")
 
       assert.equals("content", result)
+    end)
+
+    it("works with any custom formatter", function()
+      -- Using sed as a custom "formatter" to prove any command works
+      local custom_formatter = {
+        cmd = "sed",
+        args = { "s/foo/bar/g" },
+      }
+      local result = formatter.format_with_temp_file("foo baz foo", custom_formatter, "custom")
+
+      assert.equals("bar baz bar", result)
+    end)
+
+    it("works with formatter that has multiple args", function()
+      local custom_formatter = {
+        cmd = "tr",
+        args = { "a-z", "A-Z", "<" },
+      }
+      local result = formatter.format_with_temp_file("hello", custom_formatter, "tr-test")
+
+      assert.equals("HELLO", result)
     end)
 
     it("cleans up temp file after execution", function()
