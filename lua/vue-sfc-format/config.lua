@@ -67,6 +67,7 @@ local defaults = {
   formatters = default_formatters,
   indent = 2,
   temp_dir = "/tmp",
+  remove_space_before_self_close = true,
 }
 
 M.options = vim.deepcopy(defaults)
@@ -93,6 +94,13 @@ local function load_config_file()
   if not ok then return nil end
 
   return config
+end
+
+function M.get_option(key)
+  local file_config = load_config_file()
+  if file_config and file_config[key] ~= nil then return file_config[key] end
+
+  return M.options[key]
 end
 
 function M.get_formatter(section_type, attrs)
