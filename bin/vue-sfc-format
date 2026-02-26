@@ -1,82 +1,8 @@
-#!/usr/bin/env lua
---[[
-  Vue SFC Format CLI
-  Formats Vue SFC files from stdin to stdout.
-  Reads configuration from .vue-sfc-format.json in current directory.
-]]
+#!/usr/bin/env bash
+# Vue SFC Format CLI wrapper
+# Uses nvim's built-in Lua interpreter to run the formatter
 
--- Add plugin lua path
-local script_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)") or ""
-package.path = script_dir .. "../lua/?.lua;" .. script_dir .. "../lua/?/init.lua;" .. package.path
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LUA_SCRIPT="$SCRIPT_DIR/vue-sfc-format.lua"
 
--- Mock vim global for standalone usage
-_G.vim = {
-  fn = {
-    getcwd = function()
-      return os.getenv("PWD") or "."
-    end,
-    filereadable = function(path)
-      local f = io.open(path, "r")
-      if f then
-        f:close()
-        return 1
-      end
-      return 0
-    end,
-  },
-  deepcopy = function(t)
-    if type(t) ~= "table" then return t end
-
-    local copy = {}
-    for k, v in pairs(t) do
-      copy[k] = _G.vim.deepcopy(v)
-    end
-    return copy
-  end,
-  tbl_deep_extend = function(behavior, ...)
-    local result = {}
-    for _, tbl in ipairs({ ... }) do
-      if tbl then
-        for k, v in pairs(tbl) do
-          if type(v) == "table" and type(result[k]) == "table" then
-            result[k] = _G.vim.tbl_deep_extend(behavior, result[k], v)
-          else
-            result[k] = _G.vim.deepcopy(v)
-          end
-        end
-      end
-    end
-    return result
-  end,
-  json = {
-    decode = function(str)
-      -- Simple JSON decoder
-      str = str:gsub('"([^"]+)"%s*:', '["%1"]=')
-      str = str:gsub("%[", "{")
-      str = str:gsub("%]", "}")
-      str = str:gsub(":null", "=nil")
-      str = str:gsub(":true", "=true")
-      str = str:gsub(":false", "=false")
-      local fn = loadstring("return " .. str)
-      if fn then return fn() end
-
-      return nil
-    end,
-  },
-}
-
-local formatter = require("vue-sfc-format.formatter")
-
-local function main()
-  local content = io.read("*a")
-
-  local formatted, err = formatter.format_vue(content)
-  if err then
-    io.stderr:write("Error: " .. err .. "\n")
-    os.exit(1)
-  end
-
-  io.write(formatted)
-end
-
-main()
+exec nvim -l "$LUA_SCRIPT" "$@"
