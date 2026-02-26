@@ -1,0 +1,47 @@
+{
+  "formatters": {
+    "template": {
+      "cmd": "npx",
+      "args": [
+        "js-beautify",
+        "--type", "html",
+        "--indent-size", "2",
+        "--wrap-attributes", "force-aligned",
+        "--wrap-line-length", "120",
+        "--indent-inner-html",
+        "--preserve-newlines",
+        "--max-preserve-newlines", "2"
+      ]
+    },
+    "script": {
+      "cmd": "npx",
+      "args": [
+        "prettier",
+        "--parser", "babel",
+        "--semi", "false",
+        "--single-quote",
+        "--trailing-comma", "none",
+        "--tab-width", "2",
+        "--print-width", "120"
+      ]
+    },
+    "style": {
+      "cmd": "npx",
+      "args": [
+        "prettier",
+        "--parser", "css",
+        "--tab-width", "2",
+        "--print-width", "120"
+      ]
+    },
+    "style_scss": {
+      "cmd": "npx",
+      "args": [
+        "prettier",
+        "--parser", "scss",
+        "--tab-width", "2",
+        "--print-width", "120"
+      ]
+    }
+  }
+}
