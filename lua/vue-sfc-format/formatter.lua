@@ -80,9 +80,7 @@ function M.format_section(section_type, content, attrs)
   local indent_value = config.get_option(indent_key)
   if indent_value == nil then indent_value = config.get_option("indent") end
 
-  if indent_value and indent_value > 0 then
-    formatted = parser.indent(formatted, indent_value)
-  end
+  if indent_value and indent_value > 0 then formatted = parser.indent(formatted, indent_value) end
 
   return formatted, nil
 end
