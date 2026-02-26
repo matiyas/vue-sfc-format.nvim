@@ -76,7 +76,7 @@ local defaults = {
   indent_script = 2,
   indent_style = 2,
   temp_dir = "/tmp",
-  remove_space_before_self_close = true,
+  remove_space_before_self_close = false,
 }
 
 M.options = vim.deepcopy(defaults)
