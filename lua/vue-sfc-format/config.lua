@@ -66,6 +66,9 @@ local defaults = {
   config_file = ".vue-sfc-format.json",
   formatters = default_formatters,
   indent = 2,
+  indent_template = 2,
+  indent_script = 2,
+  indent_style = 0,
   temp_dir = "/tmp",
   remove_space_before_self_close = true,
 }
