@@ -9,13 +9,12 @@ When working with Vue SFC files, you often want different formatting for differe
 - **Script**: JavaScript/TypeScript formatting with your preferred style
 - **Style**: CSS/SCSS formatting
 
-This plugin extracts each section, formats it with the appropriate tool, and reassembles the file. It correctly handles nested template tags (e.g., `<template v-if>`, `<template v-else>`) using depth-balanced tag matching.
+This plugin extracts each section, formats it with the appropriate tool, and reassembles the file.
 
 ## Key Features
 
 - Configurable formatters for each section via JSON config
 - Automatic SCSS detection from `lang="scss"` attribute
-- Handles nested template tags correctly
 - Provides `:VueSfcFormat` command
 - Integrates with formatter.nvim
 
