@@ -149,9 +149,9 @@ describe("parser", function()
       local section = parser.extract_section(content, "template")
 
       assert.is_not_nil(section)
-      assert.is_truthy(section.content:find("<template v-if"))
-      assert.is_truthy(section.content:find("</template>"))
-      assert.is_truthy(section.content:find("<span>Visible</span>"))
+      assert.is_truthy(section.content:find("<template v%-if", 1, false))
+      assert.is_truthy(section.content:find("</template>", 1, true))
+      assert.is_truthy(section.content:find("<span>Visible</span>", 1, true))
     end)
   end)
 
