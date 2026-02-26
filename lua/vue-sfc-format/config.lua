@@ -34,6 +34,10 @@ local default_formatters = {
       "2",
       "--print-width",
       "120",
+      "--arrow-parens",
+      "avoid",
+      "--quote-props",
+      "preserve",
     },
   },
   style = {
