@@ -103,29 +103,57 @@ describe("config", function()
     end)
   end)
 
-  describe("load_formatters", function()
-    it("returns error when config file not found", function()
-      config.setup({ config_file = "nonexistent.json" })
+  describe("defaults", function()
+    it("has default formatters", function()
+      local defaults = config.get_defaults()
 
-      local result, err = config.load_formatters()
-
-      assert.is_nil(result)
-      assert.is_truthy(err:find("Config file not found"))
+      assert.is_not_nil(defaults.formatters)
+      assert.is_not_nil(defaults.formatters.template)
+      assert.is_not_nil(defaults.formatters.script)
+      assert.is_not_nil(defaults.formatters.style)
+      assert.is_not_nil(defaults.formatters.style_scss)
     end)
   end)
 
   describe("get_formatter", function()
-    it("returns error when config not available", function()
-      config.setup({ config_file = "nonexistent.json" })
+    before_each(function()
+      package.loaded["vue-sfc-format.config"] = nil
+      config = require("vue-sfc-format.config")
+    end)
 
+    it("returns default formatter when no config file", function()
       local result, err = config.get_formatter("template", "")
 
-      assert.is_nil(result)
-      assert.is_truthy(err)
+      assert.is_not_nil(result)
+      assert.is_nil(err)
+      assert.equals("npx", result.cmd)
+    end)
+
+    it("returns script formatter", function()
+      local result, err = config.get_formatter("script", "")
+
+      assert.is_not_nil(result)
+      assert.is_nil(err)
+    end)
+
+    it("returns style formatter", function()
+      local result, err = config.get_formatter("style", "")
+
+      assert.is_not_nil(result)
+      assert.is_nil(err)
+    end)
+
+    it("returns style_scss formatter when attrs contain scss", function()
+      local result, err = config.get_formatter("style", ' lang="scss"')
+
+      assert.is_not_nil(result)
+      assert.is_nil(err)
+      -- Should use scss parser
+      local args_str = table.concat(result.args, " ")
+      assert.is_truthy(args_str:find("scss"))
     end)
 
     it("detects scss from attrs", function()
-      -- This test verifies the scss detection logic
       local attrs = ' lang="scss" scoped'
 
       assert.is_truthy(attrs:find("scss"))
