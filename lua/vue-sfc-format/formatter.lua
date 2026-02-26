@@ -8,7 +8,7 @@ local M = {}
 --- @param suffix string Temp file suffix
 --- @return string Temp file path
 local function write_temp_file(content, suffix)
-  local tmp_file = string.format("%s/vue-sfc-format-%d-%s", config.options.temp_dir, os.time(), suffix)
+  local tmp_file = string.format("%s/vue-sfc-format-%d-%s", config.get_option("temp_dir"), os.time(), suffix)
   local f = io.open(tmp_file, "w")
   if not f then error("Failed to create temp file: " .. tmp_file) end
 
@@ -57,6 +57,14 @@ end
 --- @param attrs string Section attributes
 --- @return string|nil Formatted content
 --- @return string|nil Error message
+--- Removes space before /> in self-closing tags.
+--- js-beautify adds space before /> but we want to match the original format.
+--- @param html string HTML content
+--- @return string HTML with space removed before />
+local function remove_space_before_self_close(html)
+  return html:gsub(" />", "/>")
+end
+
 function M.format_section(section_type, content, attrs)
   local formatter, err = config.get_formatter(section_type, attrs)
   if not formatter then return nil, err end
@@ -64,7 +72,12 @@ function M.format_section(section_type, content, attrs)
   local trimmed = content:match("^%s*(.-)%s*$")
   local formatted = M.format_with_temp_file(trimmed, formatter, section_type)
 
-  if section_type == "template" then formatted = parser.indent(formatted, config.options.indent) end
+  if section_type == "template" then
+    if config.get_option("remove_space_before_self_close") then
+      formatted = remove_space_before_self_close(formatted)
+    end
+    formatted = parser.indent(formatted, config.get_option("indent"))
+  end
 
   return formatted, nil
 end

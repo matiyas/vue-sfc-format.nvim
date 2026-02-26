@@ -66,6 +66,7 @@ require("vue-sfc-format").setup({
   config_file = ".vue-sfc-format.json",  -- JSON config file name
   indent = 2,                             -- Indentation for template content
   temp_dir = "/tmp",                      -- Temp file directory
+  remove_space_before_self_close = true,  -- Remove space before /> in self-closing tags
 })
 ```
 
@@ -75,6 +76,8 @@ Create a `.vue-sfc-format.json` file in your project root:
 
 ```json
 {
+  "indent": 2,
+  "remove_space_before_self_close": true,
   "formatters": {
     "template": {
       "cmd": "npx",
