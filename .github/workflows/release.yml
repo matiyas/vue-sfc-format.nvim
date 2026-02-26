@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nvim-neorocks/luarocks-tag-release@v7
+        env:
+          LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
+        with:
+          name: vue-sfc-format.nvim
+          summary: "Format Vue SFC files with configurable formatters for each section"
+          labels: |
+            neovim
+            vue
+            formatter
+            sfc
+          copy_directories: |
+            lua
+            plugin
+            doc
