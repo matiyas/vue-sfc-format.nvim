@@ -7,11 +7,25 @@ description = {
   detailed = [[
     A Neovim plugin that formats Vue Single File Components by applying
     different formatters to each section (template, script, style).
-    Supports configurable formatters via JSON config file.
+    Supports Prettier, js-beautify, and custom formatters via JSON config.
+    Features automatic SCSS detection, per-section indentation, and CLI tool.
   ]],
   license = "MIT",
   homepage = "https://github.com/matiyas/vue-sfc-format.nvim",
-  labels = { "neovim", "vue", "formatter", "sfc" },
+  issues_url = "https://github.com/matiyas/vue-sfc-format.nvim/issues",
+  maintainer = "matiyas",
+  labels = {
+    "neovim",
+    "neovim-plugin",
+    "vue",
+    "vue-sfc",
+    "formatter",
+    "code-formatting",
+    "prettier",
+    "javascript",
+    "scss",
+    "lua",
+  },
 }
 
 dependencies = {
