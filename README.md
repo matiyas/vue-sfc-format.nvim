@@ -22,9 +22,7 @@ This plugin extracts each section, formats it with the appropriate tool, and rea
 ## Requirements
 
 - Neovim >= 0.9.0
-- Node.js with npx
-- js-beautify (`npm install -g js-beautify`)
-- prettier (`npm install -g prettier`)
+- Formatters configured in `.vue-sfc-format.json` must be available in PATH
 
 ## Installation
 

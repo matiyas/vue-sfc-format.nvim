@@ -28,9 +28,7 @@ by using depth-balanced tag matching.
 REQUIREMENTS                                    *vue-sfc-format-requirements*
 
 - Neovim >= 0.9.0
-- Node.js with npx (for running formatters)
-- js-beautify (npm install -g js-beautify)
-- prettier (npm install -g prettier)
+- Formatters configured in `.vue-sfc-format.json` must be available in PATH
 
 ==============================================================================
 INSTALLATION                                    *vue-sfc-format-installation*
