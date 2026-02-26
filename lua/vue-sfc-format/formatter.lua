@@ -72,11 +72,16 @@ function M.format_section(section_type, content, attrs)
   local trimmed = content:match("^%s*(.-)%s*$")
   local formatted = M.format_with_temp_file(trimmed, formatter, section_type)
 
-  if section_type == "template" then
-    if config.get_option("remove_space_before_self_close") then
-      formatted = remove_space_before_self_close(formatted)
-    end
-    formatted = parser.indent(formatted, config.get_option("indent"))
+  if section_type == "template" and config.get_option("remove_space_before_self_close") then
+    formatted = remove_space_before_self_close(formatted)
+  end
+
+  local indent_key = "indent_" .. section_type
+  local indent_value = config.get_option(indent_key)
+  if indent_value == nil then indent_value = config.get_option("indent") end
+
+  if indent_value and indent_value > 0 then
+    formatted = parser.indent(formatted, indent_value)
   end
 
   return formatted, nil
