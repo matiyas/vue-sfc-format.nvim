@@ -79,7 +79,7 @@ describe("parser", function()
       local content = "<template><template v-if>a</template><template v-else>b</template></template>"
       local pos = parser.find_matching_close_tag(content, "template", 11)
 
-      assert.equals(68, pos)
+      assert.equals(67, pos)
     end)
 
     it("returns nil for unclosed tag", function()

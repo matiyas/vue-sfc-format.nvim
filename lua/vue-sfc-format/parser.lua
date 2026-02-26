@@ -59,19 +59,22 @@ end
 --- @param tag_name string Section tag name (template, script, style)
 --- @return table|nil Table with attrs and content, or nil if not found
 function M.extract_section(content, tag_name)
-  local pattern = "<" .. tag_name .. "(%s[^>]*)?>?"
-  local tag_start, _, attrs = content:lower():find(pattern)
+  -- Find opening tag (case-insensitive)
+  local lower_content = content:lower()
+  local open_pattern = "<" .. tag_name .. "[%s>]"
+  local tag_start = lower_content:find(open_pattern)
   if not tag_start then return nil end
 
-  -- Get actual attrs from original content (preserve case)
-  local orig_tag_end = content:find(">", tag_start)
-  if not orig_tag_end then return nil end
+  -- Find end of opening tag
+  local tag_end = content:find(">", tag_start)
+  if not tag_end then return nil end
 
-  local orig_tag = content:sub(tag_start, orig_tag_end)
-  local _, _, orig_attrs = orig_tag:find("<" .. tag_name .. "(%s[^>]*)?>?")
-  attrs = orig_attrs or ""
+  -- Extract attributes (everything between tag name and >)
+  local attrs = ""
+  local attr_start = tag_start + #tag_name + 1
+  if attr_start < tag_end then attrs = content:sub(attr_start, tag_end - 1) end
 
-  local content_start = orig_tag_end + 1
+  local content_start = tag_end + 1
   local close_pos = M.find_matching_close_tag(content, tag_name, content_start)
   if not close_pos then return nil end
 
