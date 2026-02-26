@@ -1,7 +1,7 @@
 --[[
   Vue SFC Format CLI
   Formats Vue SFC files from stdin to stdout.
-  Reads configuration from .vue-sfc-format.json in current directory.
+  Uses built-in defaults or .vue-sfc-format.json if present.
 ]]
 
 -- Add plugin lua path
