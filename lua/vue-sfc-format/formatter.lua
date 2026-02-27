@@ -31,6 +31,21 @@ local function exec(cmd)
   return result
 end
 
+--- Resolves command path, falling back from local to global.
+--- @param cmd string Command (may be ./node_modules/.bin/xxx)
+--- @return string Resolved command path
+local function resolve_cmd(cmd)
+  if cmd:match("^%./node_modules/") then
+    local f = io.open(cmd, "r")
+    if f then
+      f:close()
+      return cmd
+    end
+    return cmd:match("([^/]+)$")
+  end
+  return cmd
+end
+
 --- Formats content using a command with temp file.
 --- @param content string Content to format
 --- @param formatter table Formatter config with cmd and args
@@ -39,16 +54,22 @@ end
 function M.format_with_temp_file(content, formatter, suffix)
   local tmp_file = write_temp_file(content, suffix)
   local args_str = table.concat(formatter.args, " ")
-  local cmd = string.format("%s %s %s 2>/dev/null", formatter.cmd, args_str, tmp_file)
+  local resolved_cmd = resolve_cmd(formatter.cmd)
+  local cmd = string.format("%s %s %s 2>&1", resolved_cmd, args_str, tmp_file)
 
   local ok, result = pcall(function()
     return exec(cmd)
   end)
 
   os.remove(tmp_file)
-  if not ok then error(result) end
+  if not ok then return nil, result end
 
-  return result:gsub("%s+$", "")
+  local trimmed = result:gsub("%s+$", "")
+  if trimmed == "" or trimmed:match("^[Cc]ommand not found") or trimmed:match("^sh:") or trimmed:match("not found") then
+    return nil, "Formatter not found: " .. resolved_cmd .. " (output: " .. trimmed .. ")"
+  end
+
+  return trimmed, nil
 end
 
 --- Formats a single section of the Vue SFC.
@@ -70,7 +91,8 @@ function M.format_section(section_type, content, attrs)
   if not formatter then return nil, err end
 
   local trimmed = content:match("^%s*(.-)%s*$")
-  local formatted = M.format_with_temp_file(trimmed, formatter, section_type)
+  local formatted, fmt_err = M.format_with_temp_file(trimmed, formatter, section_type)
+  if fmt_err then return nil, fmt_err end
 
   if section_type == "template" and config.get_option("remove_space_before_self_close") then
     formatted = remove_space_before_self_close(formatted)

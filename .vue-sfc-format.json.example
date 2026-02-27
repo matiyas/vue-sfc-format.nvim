@@ -1,9 +1,8 @@
 {
   "formatters": {
     "template": {
-      "cmd": "npx",
+      "cmd": "js-beautify",
       "args": [
-        "js-beautify",
         "--type", "html",
         "--indent-size", "2",
         "--wrap-attributes", "force-aligned",
@@ -14,9 +13,8 @@
       ]
     },
     "script": {
-      "cmd": "npx",
+      "cmd": "prettier",
       "args": [
-        "prettier",
         "--parser", "babel",
         "--semi", "false",
         "--single-quote",
@@ -26,18 +24,16 @@
       ]
     },
     "style": {
-      "cmd": "npx",
+      "cmd": "prettier",
       "args": [
-        "prettier",
         "--parser", "css",
         "--tab-width", "2",
         "--print-width", "120"
       ]
     },
     "style_scss": {
-      "cmd": "npx",
+      "cmd": "prettier",
       "args": [
-        "prettier",
         "--parser", "scss",
         "--tab-width", "2",
         "--print-width", "120"

@@ -2,9 +2,8 @@ local M = {}
 
 local default_formatters = {
   template = {
-    cmd = "npx",
+    cmd = "./node_modules/.bin/js-beautify",
     args = {
-      "js-beautify",
       "--type",
       "html",
       "--indent-size",
@@ -20,9 +19,8 @@ local default_formatters = {
     },
   },
   script = {
-    cmd = "npx",
+    cmd = "./node_modules/.bin/prettier",
     args = {
-      "prettier",
       "--parser",
       "babel",
       "--semi",
@@ -41,9 +39,8 @@ local default_formatters = {
     },
   },
   style = {
-    cmd = "npx",
+    cmd = "./node_modules/.bin/prettier",
     args = {
-      "prettier",
       "--parser",
       "css",
       "--single-quote",
@@ -54,9 +51,8 @@ local default_formatters = {
     },
   },
   style_scss = {
-    cmd = "npx",
+    cmd = "./node_modules/.bin/prettier",
     args = {
-      "prettier",
       "--parser",
       "scss",
       "--single-quote",
