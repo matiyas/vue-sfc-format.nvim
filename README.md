@@ -1,5 +1,9 @@
 # vue-sfc-format.nvim
 
+[![CI](https://github.com/matiyas/vue-sfc-format.nvim/actions/workflows/test.yml/badge.svg)](https://github.com/matiyas/vue-sfc-format.nvim/actions/workflows/test.yml)
+[![LuaRocks](https://img.shields.io/luarocks/v/matiyas/vue-sfc-format.nvim?logo=lua&color=purple)](https://luarocks.org/modules/matiyas/vue-sfc-format.nvim)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Neovim plugin that formats Vue Single File Components (SFC) by applying configurable formatters to each section separately.
 
 ## Core Purpose
