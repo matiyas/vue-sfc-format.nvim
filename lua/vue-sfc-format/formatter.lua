@@ -107,35 +107,110 @@ function M.format_section(section_type, content, attrs)
   return formatted, nil
 end
 
---- Formats a complete Vue SFC file.
+--- Prepares a section for parallel formatting.
+--- @param section table Section with content and attrs
+--- @param section_type string Section type
+--- @return table|nil Job info with input_file, output_file, cmd, section_type, attrs
+--- @return string|nil Error message
+local function prepare_format_job(section, section_type)
+  local formatter, err = config.get_formatter(section_type, section.attrs)
+  if not formatter then return nil, err end
+
+  local trimmed = section.content:match("^%s*(.-)%s*$")
+  local temp_dir = config.get_option("temp_dir")
+  local timestamp = os.time()
+  local input_file = string.format("%s/vue-sfc-format-%d-%s-in", temp_dir, timestamp, section_type)
+  local output_file = string.format("%s/vue-sfc-format-%d-%s-out", temp_dir, timestamp, section_type)
+
+  local f = io.open(input_file, "w")
+  if not f then return nil, "Failed to create temp file: " .. input_file end
+  f:write(trimmed)
+  f:close()
+
+  local resolved_cmd = resolve_cmd(formatter.cmd)
+  local args_str = table.concat(formatter.args, " ")
+
+  return {
+    input_file = input_file,
+    output_file = output_file,
+    cmd = string.format("%s %s %s > %s 2>&1", resolved_cmd, args_str, input_file, output_file),
+    section_type = section_type,
+    attrs = section.attrs,
+    resolved_cmd = resolved_cmd,
+  },
+    nil
+end
+
+--- Reads and processes the output of a format job.
+--- @param job table Job info
+--- @return string|nil Formatted content
+--- @return string|nil Error message
+local function read_format_result(job)
+  local f = io.open(job.output_file, "r")
+  if not f then return nil, "Failed to read output file: " .. job.output_file end
+
+  local result = f:read("*a")
+  f:close()
+  os.remove(job.input_file)
+  os.remove(job.output_file)
+
+  local trimmed = result:gsub("%s+$", "")
+  if trimmed == "" or trimmed:match("^[Cc]ommand not found") or trimmed:match("^sh:") or trimmed:match("not found") then
+    return nil, "Formatter not found: " .. job.resolved_cmd .. " (output: " .. trimmed .. ")"
+  end
+
+  if job.section_type == "template" and config.get_option("remove_space_before_self_close") then
+    trimmed = remove_space_before_self_close(trimmed)
+  end
+
+  local indent_key = "indent_" .. job.section_type
+  local indent_value = config.get_option(indent_key)
+  if indent_value == nil then indent_value = config.get_option("indent") end
+  if indent_value and indent_value > 0 then trimmed = parser.indent(trimmed, indent_value) end
+
+  return trimmed, nil
+end
+
+--- Formats a complete Vue SFC file with parallel execution.
 --- @param content string Raw Vue SFC content
 --- @return string|nil Formatted Vue SFC
 --- @return string|nil Error message
 function M.format_vue(content)
-  local sections = {}
-
   local template = parser.extract_section(content, "template")
-  if template then
-    local formatted, err = M.format_section("template", template.content, template.attrs)
-    if err then return nil, err end
-
-    table.insert(sections, parser.wrap_section("template", template.attrs, formatted))
-  end
-
   local script = parser.extract_section(content, "script")
-  if script then
-    local formatted, err = M.format_section("script", script.content, script.attrs)
-    if err then return nil, err end
+  local style = parser.extract_section(content, "style")
 
-    table.insert(sections, parser.wrap_section("script", script.attrs, formatted))
+  local jobs = {}
+  local section_order = { "template", "script", "style" }
+  local section_data = { template = template, script = script, style = style }
+
+  for _, section_type in ipairs(section_order) do
+    local section = section_data[section_type]
+    if section then
+      local job, err = prepare_format_job(section, section_type)
+      if err then return nil, err end
+      jobs[section_type] = job
+    end
   end
 
-  local style = parser.extract_section(content, "style")
-  if style then
-    local formatted, err = M.format_section("style", style.content, style.attrs)
-    if err then return nil, err end
+  if not next(jobs) then return content, nil end
 
-    table.insert(sections, parser.wrap_section("style", style.attrs, formatted))
+  local cmds = {}
+  for _, section_type in ipairs(section_order) do
+    if jobs[section_type] then table.insert(cmds, "(" .. jobs[section_type].cmd .. ")") end
+  end
+
+  local parallel_cmd = table.concat(cmds, " & ") .. " & wait"
+  os.execute(parallel_cmd)
+
+  local sections = {}
+  for _, section_type in ipairs(section_order) do
+    local job = jobs[section_type]
+    if job then
+      local formatted, err = read_format_result(job)
+      if err then return nil, err end
+      table.insert(sections, parser.wrap_section(section_type, job.attrs, formatted))
+    end
   end
 
   return table.concat(sections, "\n"), nil

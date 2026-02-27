@@ -126,7 +126,7 @@ describe("config", function()
 
       assert.is_not_nil(result)
       assert.is_nil(err)
-      assert.equals("npx", result.cmd)
+      assert.equals("./node_modules/.bin/js-beautify", result.cmd)
     end)
 
     it("returns script formatter", function()
