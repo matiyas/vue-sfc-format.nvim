@@ -16,7 +16,7 @@ This plugin extracts each section, formats it with the appropriate tool, and rea
 - Configurable formatters for each section via JSON config
 - Automatic SCSS detection from `lang="scss"` attribute
 - Provides `:VueSfcFormat` command
-- Integrates with formatter.nvim
+- Integrates with [formatter.nvim](https://github.com/mhartington/formatter.nvim)
 
 ## Requirements
 
