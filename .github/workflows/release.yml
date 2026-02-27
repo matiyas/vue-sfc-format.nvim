@@ -8,9 +8,50 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: nvim-neorocks/luarocks-tag-release@v7
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s" HEAD)
+          else
+            COMMITS=$(git log --pretty=format:"- %s" ${PREV_TAG}..HEAD)
+          fi
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: false
+          body: |
+            ## Changes
+
+            ${{ steps.changelog.outputs.commits }}
+
+            ## Install
+
+            Using [lazy.nvim](https://github.com/folke/lazy.nvim):
+            ```lua
+            { "matiyas/vue-sfc-format.nvim" }
+            ```
+
+            Using [LuaRocks](https://luarocks.org/modules/matiyas/vue-sfc-format.nvim):
+            ```
+            luarocks install vue-sfc-format.nvim
+            ```
+
+      - name: Publish to LuaRocks
+        uses: nvim-neorocks/luarocks-tag-release@v7
         env:
           LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
         with:
