@@ -29,9 +29,37 @@ Feature requests are welcome! Please open an issue and describe:
 3. Make your changes
 4. Ensure tests pass and code style is maintained
 5. Update documentation (`doc/vue-sfc-format.txt`) if you've added or changed features
-6. Commit your changes (`git commit -am 'Add some feature'`)
+6. Commit your changes following the [Conventional Commits](https://www.conventionalcommits.org/) format
 7. Push to the branch (`git push origin feature/my-new-feature`)
 8. Create a new Pull Request
+
+### Commit Message Format
+
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
+```
+<type>: <description>
+```
+
+**Types:**
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, whitespace)
+- `refactor`: Code refactoring without feature changes
+- `perf`: Performance improvements
+- `test`: Adding or updating tests
+- `build`: Build system or dependency changes
+- `ci`: CI/CD configuration changes
+- `chore`: Maintenance tasks
+
+**Examples:**
+```
+feat: add support for custom script formatters
+fix: resolve parsing error with nested template tags
+docs: update configuration examples in README
+refactor: simplify section extraction logic
+```
 
 ## Development Setup
 
